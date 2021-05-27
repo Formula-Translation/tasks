@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Employee list</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <!-- <link rel="stylesheet" href="../style/styles.css"> -->
+</head>
+
+<body>
+    <input id="toggle-event" type="checkbox" data-toggle="toggle" data-on="active users" data-off="All users">
+    <div id="employee_list"></div>
+</body>
+<script>
+    $(function() {
+        $('#toggle-event').change(function() {
+            if ($(this).prop('checked') == true) {
+                get_activeEmployee();
+            } else {
+                get_allEmployee();
+            }
+        })
+    })
+
+    //only action this once (when loaded), default 
+    get_allEmployee();
+
+    function activeUser(id) {
+        window.location.href = 'http://localhost/pages/sssTask/src/personelTask.html?userId=' + id;
+    }
+
+    function makeTable(pic, Emp_id, Emp_name) {
+        var HTML = '';
+        let img = '<img src = "../asset/photo/' + pic + '"  width="40" height="40" style=" border-radius: 50%">'
+        HTML += ' <div class="card text-white bg-warning mb-3" style="max-width: 18rem; onclick="activeUser("' + Emp_id + '"")">';
+        HTML += '<div class="card-header"> ' + Emp_name + ' </div>';
+        HTML += '<div class="card-body">' + Emp_id + ' </div>';
+        HTML += '<a href="http://localhost/pages/sssTask/src/personelTask.html?userId=' + Emp_id + '">';
+        HTML += '<h5 class="card-title">' + img + '</h5>';
+        HTML += '</a>';
+        HTML += '</div>';
+        HTML += '</div>';
+        return HTML;
+    }
+
+
+    //only work when it's called
+    function get_allEmployee() {
+        var myService = 'http://localhost/pages/sssTask/service/employee.php';
+        fetch(myService)
+            .then(result => result.json())
+            .then(result => {
+                let optList = result.data;
+                var HTML = "";
+                for (let row of optList) {
+                    b = makeTable(row.pic, row.Emp_id, row.Emp_name);
+                    HTML += b;
+                }
+
+                document.getElementById("employee_list").innerHTML = HTML;
+
+            });
+
+        return;
+
+    }
+
+    function get_activeEmployee() {
+        var myService = 'http://localhost/pages/sssTask/service/activeEmployee.php';
+        fetch(myService)
+            .then(result => result.json())
+            .then(result => {
+                let optList = result;
+                // var i = 1;
+                var HTML = "";
+                for (let row of optList) {
+                    // i++;
+                    // if (i < 3) {
+                    let img = '<img src = "../asset/photo/' + row.pic + '"  width="40" height="40" style=" border-radius: 50%">'
+                    HTML += ' <div class="card text-white bg-warning mb-3" style="max-width: 18rem; onclick="activeUser("' + row.Emp_id + '"")">';
+                    HTML += '<div class="card-header"> ' + row.Emp_name + ' </div>';
+                    HTML += '<div class="card-body">' + row.Emp_id + ' </div>';
+                    HTML += '<a href="http://localhost/pages/sssTask/src/personelTask.html?userId=' + row.Emp_id + '">';
+                    HTML += '<h5 class="card-title">' + img + '</h5>';
+                    HTML += '</a>';
+                    HTML += '</div>';
+                    HTML += '</div>';
+                    // }
+                }
+
+                document.getElementById("employee_list").innerHTML = HTML;
+
+            });
+
+        return;
+
+    }
+</script>
+
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Tasks list</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="../style/styles2.css">
+</head>
+
+<body>
+    <header>
+        <input id="dd_members" list="list_members" onChange="userTask()">
+        <datalist id="list_members">
+        </datalist>
+
+        <div id="selected_user">
+        </div>
+
+        <datalist id="dd_userTask">
+        </datalist>
+    </header>
+    <section>
+        <nav>
+            <div id="outputDiv"></div>
+        </nav>
+    </section>
+</body>
+<script>
+    let userId = new URL(window.location.href).searchParams.get('userId');
+
+    userTask();
+
+    if (userId) {
+        console.log(userId);
+        userTask(userId);
+    }
+
+    function userTask(id = null) {
+        //FORTRAN: get userID from selected dropdown
+        var userID = id || document.getElementById("dd_members").value;
+        //  document.getElementById("selected_user").innerHTML = "userId" + userID;
+        document.getElementById('selected_user').innerHTML = userID;
+        // alert(userID);
+        //FORTRAN: get service from (url) + with userID
+        var myService = 'http://localhost/pages/sssTask/service/getUserTask.php?userID=' + userID;
+        //FORTRAN: convert myService to result
+        fetch(myService)
+            .then(result => result.json())
+            .then(result => {
+                //FORTRAN: to create varaible that get data from 'result.data' (json format) since .data is  a specific array
+                let optList = result.data;
+                //FORTRAN: varaible to use for dropdown afterward
+                let opts = [];
+                //populate tasks dropdown list
+                //FORTRAN: use r because we want each row of array
+                for (let r of optList) {
+                    let val = "[" + r.issue_id + "]" + r.issue_name;
+                    let opt = '<option value="' + r.issue_id + '">' + val + '</option>';
+                    opts.push(opt);
+                }
+                document.getElementById('dd_userTask').innerHTML = opts.join('');
+                //FORTRAN: create html for a table
+                var HTML = "<table id = 'task'><tr>";
+                HTML += "<th>STATUS</th><th>id</th> <th >task detail </th> </tr>";
+                //FORTRAN: we use += to let it keep on connecting
+                for (let row of optList) {
+                    let td = '<td>' + row.status + '</td>';
+                    td += '<td>' + row.issue_id + '</td>';
+                    td += '<td>' + row.issue_name + '</td>';
+                    HTML += '<tr>' + td + '</tr>';
+                }
+                HTML += "</table>";
+                console.log(HTML);
+                document.getElementById("outputDiv").innerHTML = HTML;
+
+            });
+
+        return;
+
+    }
+</script>
+<script>
+    populate_ddmember();
+
+    function populate_ddmember() {
+        fetch('http://localhost/pages/sssTask/service/getMember.php')
+            .then(res => res.json())
+            .then(res => {
+                //read(res)
+                let optList = res.data;
+                let opts = [];
+                for (let r of optList) {
+                    let val = r.Emp_name;
+                    // let val = r.Emp_id + r.Emp_name;
+                    let opt = '<option value="' + r.Emp_id + '">' + val + '</option>';
+                    1
+                    opts.push(opt);
+                }
+                console.log(opts.join(''));
+                document.getElementById('list_members').innerHTML = opts.join('');
+            });
+
+        return;
+    }
+</script>
+
+</html>
